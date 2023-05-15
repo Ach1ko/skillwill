@@ -1,0 +1,51 @@
+// Pirveli Davaleba ------------
+
+function skillWill(...pars) {
+  if (pars.length <= 2) {
+    return "Parametrebis raodenoba unda iyos 2-ze meti";
+  }
+  
+  const sum = pars[0] + pars[1];
+  let act = 1;
+  
+  for (let i = 2; i < pars.length; i++) {
+    act *= pars[i];
+  }
+  
+  return [sum, act];
+}
+
+const result = skillWill(3, 3, 6, 6, 7);
+console.log(result);
+
+// Meore Davaleba --------------
+
+function getCity(user) {
+  const { banks: [, , { address: { city } = {} } = {}] = [] } = user;
+  return city;
+}
+
+const user = {banks: [{},{},{address: {city: "Tbilisi"}}]};
+
+const city = getCity(user);
+console.log(city);
+
+//Mesame Davaleba --------------
+
+function cloneObject(obj) {
+  return { ...obj };
+}
+
+const originalObject = {
+  name: "Givi",
+  age: 32,
+  address: {
+    city: "Tbilisi",
+    country: "Sakartvelo"
+  },
+  hobbies: ["Reading", "Music", "Travel"]
+};
+
+const newObject = cloneObject(originalObject);
+console.log(newObject);
+
