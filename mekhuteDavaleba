@@ -1,0 +1,145 @@
+// Pirveli davaleba - Davamate Show/Hide funqcia.
+
+const button = document.createElement('button');
+button.id = 'myButton';
+button.textContent = 'Hide Text';
+
+const div = document.createElement('div');
+div.innerHTML = 'Tsvima mogonebebs asvelebs :)';
+div.id = 'myDiv';
+
+document.body.append(button, div);
+
+button.addEventListener('click', () => {
+  const divElement = document.querySelector('#myDiv');
+  divElement.style.display = divElement.style.display === 'none' ? 'block' : 'none';
+  updateButtonText();
+});
+
+function updateButtonText() {
+  button.textContent = button.textContent === 'Hide' ? 'Show' : 'Hide';
+}
+
+// Meore Davaleba ------
+
+const lotr = document.createElement('div');
+lotr.id = 'card';
+
+const h2 = document.createElement('h2');
+h2.textContent = 'Gandalf';
+
+const link = document.createElement('a');
+link.href = '#';
+link.textContent = 'Go to profile';
+
+lotr.appendChild(h2);
+lotr.appendChild(link);
+
+document.body.appendChild(lotr);
+
+// Mesame Davaleba + Bonusi - Damatebulia start quiz gilaki, 5 wamiani timer, avtomaturad gadadis shemdeg kitxvaze, boloshi gamoaqvs shedegi.
+// HTML contenti:
+// <button id="startButton">Start Quiz</button>
+// <div id="timer"></div>
+// <div id="quiz-box"></div>
+// <div id="qulebi"></div>
+
+const quizContainer = document.getElementById('quiz-box');
+const scoreContainer = document.getElementById('qulebi');
+const timerContainer = document.getElementById('timer');
+const startButton = document.getElementById('startButton');
+const questions = [
+  {
+    question: 'Saqartvelos Dedakalaki',
+    answers: ['Tbilisi', 'Batumi', 'Rustavi'],
+    correctAnswer: 'Tbilisi'
+  },
+  {
+    question: 'Saqartvelos Pirveli Prezidenti',
+    answers: ['Shmute', 'Zviad Gamsaxurdia', 'Eduard Shevardnadze'],
+    correctAnswer: 'Zviad Gamsaxurdia'
+  },
+  {
+    question: 'Romelia Chamotvliltagan Kartuli Kerdzi',
+    answers: ['Pizza', 'Bouillabaisse', 'Khachapuri'],
+    correctAnswer: 'Khachapuri'
+  }
+];
+
+let score = 0;
+let currentQuestionIndex = 0;
+let timeRemaining = 5;
+let timerInterval;
+
+startButton.addEventListener('click', startQuiz);
+
+function displayQuestion(index) {
+  clearInterval(timerInterval);
+  const question = questions[index];
+  const questionElement = document.createElement('div');
+  questionElement.textContent = question.question;
+  quizContainer.appendChild(questionElement);
+
+  question.answers.forEach(answer => {
+    const answerElement = document.createElement('button');
+    answerElement.textContent = answer;
+    answerElement.addEventListener('click', () => {
+      clearInterval(timerInterval);
+      if (answer === question.correctAnswer) {
+        answerElement.style.backgroundColor = 'green';
+        score += 1;
+      } else {
+        answerElement.style.backgroundColor = 'red';
+      }
+      answerElement.disabled = true;
+      displayScore();
+      moveToNextQuestion();
+    });
+    quizContainer.appendChild(answerElement);
+  });
+
+  timeRemaining = 5;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeRemaining -= 1;
+    if (timeRemaining <= 0) {
+      clearInterval(timerInterval);
+      moveToNextQuestion();
+    } else {
+      updateTimerDisplay();
+    }
+  }, 1000);
+}
+
+function displayScore() {
+  scoreContainer.textContent = `Score: ${score}`;
+}
+
+function displayFinalScore() {
+  quizContainer.innerHTML = '';
+  scoreContainer.textContent = `Final Score: ${score} out of ${questions.length}`;
+  timerContainer.textContent = '';
+}
+
+function updateTimerDisplay() {
+  timerContainer.textContent = `Time: ${timeRemaining}s`;
+}
+
+function moveToNextQuestion() {
+  quizContainer.innerHTML = '';
+  currentQuestionIndex++;
+  if (currentQuestionIndex < questions.length) {
+    displayQuestion(currentQuestionIndex);
+  } else {
+    displayFinalScore();
+  }
+}
+
+function startQuiz() {
+  startButton.style.display = 'none';
+  quizContainer.innerHTML = '';
+  score = 0;
+  currentQuestionIndex = 0;
+  displayScore();
+  displayQuestion(currentQuestionIndex);
+}
