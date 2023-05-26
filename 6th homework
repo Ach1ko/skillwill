@@ -1,0 +1,141 @@
+// HTML ----------------------------------------
+
+<!DOCTYPE html>
+<html>
+    <head>
+    <link rel="stylesheet" href="style.css">
+    </head>
+    
+    <body>
+        <button id="modalButton">Open Modal</button>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+    <span class="close">&times;</span>
+            <h2>Title</h2>
+            <p>Content</p>
+          </div>
+        </div>
+    <div id="modalBack" class="modal-back"></div>
+    
+    </br>
+
+    <input id="colorInput" type="text" placeholder="Enter a Color">
+<button id="changeColorButton">Change Background Color</button>
+
+    </br>
+
+    <input id="numbersInput" type="text" placeholder="Seperate Numbers with ':'">
+<button id="calculateAverageButton">Calculate Average</button>
+<p id="averageResult"></p>
+
+    <script src="./main.js"></script>
+    </body>
+</html>
+
+// CSS ----------------------------------------
+
+html, body {
+    min-width: 100%;
+    min-height: 100%;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+  }
+  
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+  
+  .modal-back {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  button {
+    padding: 12px 20px;
+    font-size: 18px;
+  }
+  
+  
+  // Javascript ----------------------------------------
+  
+  // Pirveli Davaleba ------
+
+const modalButton = document.getElementById('modalButton');
+
+const modal = document.getElementById('modal');
+const modalBack = document.getElementById('modalBack');
+
+const closeButton = document.getElementsByClassName('close')[0];
+
+function openModal() {
+  modal.style.display = 'block';
+  modalBack.style.display = 'block';
+}
+
+
+function closeModal() {
+  modal.style.display = 'none';
+  modalBack.style.display = 'none';
+}
+
+modalButton.addEventListener('click', openModal);
+
+closeButton.addEventListener('click', closeModal);
+
+modalBack.addEventListener('click', closeModal);
+
+// Meore Davaleba ------
+
+const colorInput = document.getElementById('colorInput');
+const changeColorButton = document.getElementById('changeColorButton');
+
+function changeBackgroundColor() {
+  const color = colorInput.value.toLowerCase();
+  if (color === 'red' || color === 'blue' || color === 'green' || color === 'black' || color === 'white') {
+    document.body.style.backgroundColor = color;
+  } else {
+    alert('Only Red, Blue or Green.');
+  }
+  colorInput.value = '';
+}
+changeColorButton.addEventListener('click', changeBackgroundColor);
+
+// Mesame Davaleba ------
+
+const numbersInput = document.getElementById('numbersInput');
+const calculateAverageButton = document.getElementById('calculateAverageButton');
+const averageResult = document.getElementById('averageResult');
+function calculateAverage() {
+  const numbersString = numbersInput.value;
+  const numbersArray = numbersString.split(':');
+  const numbers = numbersArray.map(Number);
+  if (numbers.length > 0 && numbersArray.length > 0) {
+    const sum = numbers.reduce((acc, num) => acc + num, 0);
+    const average = sum / numbers.length;
+    averageResult.textContent = `The Average is: ${average.toFixed(2)}`;
+  } else {
+    averageResult.textContent = 'Not Valid';
+  }
+  numbersInput.value = '';
+}
+
+calculateAverageButton.addEventListener('click', calculateAverage);
