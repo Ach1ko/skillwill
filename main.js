@@ -1,50 +1,63 @@
-// Pirveli davaleba
-const users = [{ name: 'Temo', age: 25 },{ name: 'Lasha', age: 21 },{ name: 'Ana', age: 28 }];
+// Pirveli Davaleba ------
 
-const youngest = users.reduce((acc, curr) => curr.age < acc.age ? curr : acc);
+const modalButton = document.getElementById('modalButton');
 
-console.log(youngest.name);
+const modal = document.getElementById('modal');
+const modalBack = document.getElementById('modalBack');
 
-// Meore davaleba
+const closeButton = document.getElementsByClassName('close')[0];
 
-function oldUser(user) {
-  const newUser = { ...user };
-  return newUser;
+function openModal() {
+  modal.style.display = 'block';
+  modalBack.style.display = 'block';
 }
 
-const originalUser = { name: 'Dato', age: 25 };
-const newUser = oldUser(originalUser);
 
-console.log(newUser.name,newUser.age);
-
-// Mesame davaleba
-
-function rollDice() {
-  return Math.floor(Math.random() * 6) + 1;
+function closeModal() {
+  modal.style.display = 'none';
+  modalBack.style.display = 'none';
 }
 
-function letsPlayGame() {
-  let a, b;
-  let tries = 0;
+modalButton.addEventListener('click', openModal);
 
-  while (true) {
-    tries++;
-    a = rollDice();
-    b = rollDice();
+closeButton.addEventListener('click', closeModal);
 
-    console.log(`Try ${tries}: A rolled ${a}, B rolled ${b}`);
+modalBack.addEventListener('click', closeModal);
 
-  if (a === 3 && b === 3) {
-    console.log('Tie!');
-    break;
-  } else if (a === 3) {
-    console.log('A wins!');
-    break;
-  } else if (b === 3) {
-    console.log('B wins!');
-    break;
+// Meore Davaleba ------
+
+const colorInput = document.getElementById('colorInput');
+const changeColorButton = document.getElementById('changeColorButton');
+
+function changeBackgroundColor() {
+  const color = colorInput.value.toLowerCase();
+  if (color === 'red' || color === 'blue' || color === 'green' || color === 'black' || color === 'white') {
+    document.body.style.backgroundColor = color;
+  } else {
+    alert('Only Red, Blue or Green.');
   }
+  colorInput.value = '';
+}
+changeColorButton.addEventListener('click', changeBackgroundColor);
+
+// Mesame Davaleba ------
+
+const numbersInput = document.getElementById('numbersInput');
+const calculateAverageButton = document.getElementById('calculateAverageButton');
+const averageResult = document.getElementById('averageResult');
+function calculateAverage() {
+  const numbersString = numbersInput.value;
+  const numbersArray = numbersString.split(':');
+  const numbers = numbersArray.map(Number);
+  if (numbers.length > 0 && numbersArray.length > 0) {
+    const sum = numbers.reduce((acc, num) => acc + num, 0);
+    const average = sum / numbers.length;
+    averageResult.textContent = `The Average is: ${average.toFixed(2)}`;
+  } else {
+    averageResult.textContent = 'Not Valid';
   }
+  numbersInput.value = '';
 }
 
-letsPlayGame();
+calculateAverageButton.addEventListener('click', calculateAverage);
+
