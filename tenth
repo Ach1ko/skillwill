@@ -1,0 +1,33 @@
+function mySetTimeout(delay) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, delay);
+    });
+}
+async function distributeToys(toyCount, toyMakingTime, deliveryTime, sellingTime) {
+    try {
+        console.log(`Starting toy distribution for ${toyCount} toys...`);
+
+        for (let i = 0; i < toyCount; i++) {
+            console.log(`Toy ${i + 1}: Making...`);
+            await mySetTimeout(toyMakingTime * 1000);
+
+            console.log(`Toy ${i + 1}: Delivering...`);
+            await mySetTimeout(deliveryTime * 1000);
+
+            console.log(`Toy ${i + 1}: Selling...`);
+            await mySetTimeout(sellingTime * 1000);
+        }
+
+        console.log(`Toy distribution complete.`);
+    } catch (error) {
+        console.error(`An error occurred during toy distribution: ${error}`);
+    }
+}
+
+distributeToys(5, 3, 2, 1)
+    .then(() => {
+        console.log(`All toys distributed successfully.`);
+    })
+    .catch((error) => {
+        console.error(`Toy distribution failed: ${error}`);
+    });
