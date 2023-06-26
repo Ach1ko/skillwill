@@ -1,0 +1,91 @@
+import React, { useState, useCallback } from 'react';
+import './App.css';
+
+const Task = React.memo(({ task, completeTask, deleteTask, isCompleted }) => {
+  console.log(task);
+
+  return (
+    <div className="task-container">
+      <span>{task}</span>
+      {isCompleted ? (
+        <button className="task-button" onClick={deleteTask}>
+          Delete
+        </button>
+      ) : (
+        <>
+          <button className="task-button" onClick={completeTask}>
+            Finish
+          </button>
+          <button className="task-button" onClick={deleteTask}>
+            Delete
+          </button>
+        </>
+      )}
+    </div>
+  );
+}, (prevProps, nextProps) => {
+  return prevProps.task === nextProps.task && prevProps.isCompleted === nextProps.isCompleted;
+});
+
+const TodoListApp = () => {
+  const [tasksToDo, setTasksToDo] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState([]);
+
+  const addTask = useCallback((task) => {
+    setTasksToDo((prevTasks) => [...prevTasks, task]);
+  }, []);
+
+  const completeTask = useCallback((index) => {
+    const task = tasksToDo[index];
+    setTasksToDo((prevTasks) => prevTasks.filter((_, i) => i !== index));
+    setCompletedTasks((prevTasks) => [...prevTasks, task]);
+  }, [tasksToDo]);
+
+  const deleteTask = useCallback((index, isCompleted) => {
+    if (isCompleted) {
+      setCompletedTasks((prevTasks) => prevTasks.filter((_, i) => i !== index));
+    } else {
+      setTasksToDo((prevTasks) => prevTasks.filter((_, i) => i !== index));
+    }
+  }, []);
+
+  return (
+    <div className="container">
+      <h2>Tasks to be Done</h2>
+      {tasksToDo.map((task, index) => (
+        <Task
+          key={index}
+          task={task}
+          completeTask={() => completeTask(index)}
+          deleteTask={() => deleteTask(index, false)}
+          isCompleted={false}
+        />
+      ))}
+
+      <form
+        className="task-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const task = e.target.elements.task.value;
+          addTask(task);
+          e.target.reset();
+        }}
+      >
+        <input type="text" name="task" placeholder="Enter task" />
+        <button type="submit">Add Task</button>
+      </form>
+
+      <h2 className="completed-tasks-heading">Completed Tasks</h2>
+      {completedTasks.map((task, index) => (
+        <Task
+          key={index}
+          task={task}
+          deleteTask={() => deleteTask(index, true)}
+          isCompleted={true}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default TodoListApp;
