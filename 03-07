@@ -1,0 +1,72 @@
+import React, { useState, useEffect } from 'react';
+
+const useLocalStorage = (key, initialValue) => {
+  const [value, setValue] = useState(() => {
+    const storedValue = localStorage.getItem(key);
+    return storedValue ? JSON.parse(storedValue) : initialValue;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  return [value, setValue];
+};
+
+const useWindowSize = () => {
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return windowSize;
+};
+
+const App = () => {
+  const [isDarkMode, setIsDarkMode] = useLocalStorage('darkMode', false);
+  const windowSize = useWindowSize();
+  const isDesktop = windowSize.width > 768;
+
+  const toggleDarkMode = () => {
+    setIsDarkMode((prevMode) => !prevMode);
+  };
+
+  const appStyle = {
+    background: isDesktop ? (isDarkMode ? '#333' : '#fff') : '#fff',
+    color: isDesktop ? (isDarkMode ? '#fff' : '#333') : '#333',
+    padding: '20px',
+  };
+
+  return (
+    <div style={appStyle}>
+      <h1>Background Mode Toggle</h1>
+      {isDesktop && (
+        <button onClick={toggleDarkMode}>
+          {isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        </button>
+      )}
+      {!isDesktop && (
+        <p>
+          Dark mode is only available on desktop
+        </p>
+      )}
+    </div>
+  );
+};
+
+export default App;
