@@ -1,0 +1,428 @@
+//--------------------------------------------------- APP.JSX
+
+import React, { useState, useEffect } from 'react';
+import './App.css';
+
+const App = () => {
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState('');
+  const [editTaskId, setEditTaskId] = useState(null);
+  const [editTaskText, setEditTaskText] = useState('');
+
+  const API_URL = '/api/v1/task';
+  const API_KEY = '-OtRaOhdNKCa-HbCydMIdnHi-953hMEmiH_43CcF8_1cIMFAgw';
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const response = await fetch(API_URL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${API_KEY}`,
+        },
+      });
+      const data = await response.json();
+      setTasks(data.items);
+    };
+
+    fetchTasks();
+  }, []);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify([{ title: newTask, status: 'backlog' }]),
+    });
+
+    const data = await response.json();
+    setTasks([...tasks, data.items[0]]);
+    setNewTask('');
+  };
+
+  const handleMoveTask = async (taskId, newStatus) => {
+    const response = await fetch(`${API_URL}/${taskId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify({ status: newStatus }),
+    });
+
+    if (response.ok) {
+      const updatedTasks = tasks.map((task) => {
+        if (task._uuid === taskId) {
+          return { ...task, status: newStatus };
+        }
+        return task;
+      });
+      setTasks(updatedTasks);
+    }
+  };
+
+  const handleDelete = async (taskId) => {
+    await fetch(`${API_URL}/${taskId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${API_KEY}`,
+      },
+    });
+
+    setTasks(tasks.filter((task) => task._uuid !== taskId));
+  };
+
+  const handleEditTask = (taskId, taskText) => {
+    setEditTaskId(taskId);
+    setEditTaskText(taskText);
+  };
+
+  const handleSaveTask = async (taskId) => {
+    const updatedTask = tasks.find((task) => task._uuid === taskId);
+    updatedTask.title = editTaskText;
+
+    const response = await fetch(`${API_URL}/${taskId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify(updatedTask),
+    });
+
+    if (response.ok) {
+      const updatedTasks = tasks.map((task) => {
+        if (task._uuid === taskId) {
+          return updatedTask;
+        }
+        return task;
+      });
+      setTasks(updatedTasks);
+      setEditTaskId(null);
+      setEditTaskText('');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditTaskId(null);
+    setEditTaskText('');
+  };
+
+  return (
+    <div className="container">
+      <h1>Todo App</h1>
+      <form onSubmit={handleSubmit} className="input-form">
+        <input
+          type="text"
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
+          placeholder="Add a task"
+          required
+        />
+        <button type="submit">+</button>
+      </form>
+
+      <div className="boxes">
+        <div className="box">
+          <h2>Backlog</h2>
+          {tasks.map((task) => (
+            task.status === 'backlog' && (
+              <div key={task._uuid} className="task task-backlog">
+                {editTaskId === task._uuid ? (
+                  <div className="task-input-container">
+                    <input
+                      type="text"
+                      value={editTaskText}
+                      onChange={(e) => setEditTaskText(e.target.value)}
+                      autoFocus
+                    />
+                    <div className="task-buttons">
+                      <button className="arrow" onClick={() => handleSaveTask(task._uuid)}>
+                        &#10003;
+                      </button>
+                      <button className="arrow" onClick={handleCancelEdit}>
+                        &#x2715;
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p>{task.title}</p>
+                    <div className="task-buttons">
+                      <button
+                        className="arrow"
+                        onClick={() => handleMoveTask(task._uuid, 'inprogress')}
+                      >
+                        &rarr;
+                      </button>
+                      <button className="delete-button" onClick={() => handleDelete(task._uuid)}>
+                        Delete
+                      </button>
+                      <button
+                        className="edit-button"
+                        onClick={() => handleEditTask(task._uuid, task.title)}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          ))}
+        </div>
+
+        <div className="box">
+          <h2>In Progress</h2>
+          {tasks.map((task) => (
+            task.status === 'inprogress' && (
+              <div key={task._uuid} className="task task-inprogress">
+                {editTaskId === task._uuid ? (
+                  <div className="task-input-container">
+                    <input
+                      type="text"
+                      value={editTaskText}
+                      onChange={(e) => setEditTaskText(e.target.value)}
+                      autoFocus
+                    />
+                    <div className="task-buttons">
+                      <button className="arrow" onClick={() => handleSaveTask(task._uuid)}>
+                        &#10003;
+                      </button>
+                      <button className="arrow" onClick={handleCancelEdit}>
+                        &#x2715;
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p>{task.title}</p>
+                    <div className="task-buttons">
+                      <button
+                        className="arrow"
+                        onClick={() => handleMoveTask(task._uuid, 'backlog')}
+                      >
+                        &larr;
+                      </button>
+                      <button
+                        className="arrow"
+                        onClick={() => handleMoveTask(task._uuid, 'finished')}
+                      >
+                        &rarr;
+                      </button>
+                      <button className="delete-button" onClick={() => handleDelete(task._uuid)}>
+                        Delete
+                      </button>
+                      <button
+                        className="edit-button"
+                        onClick={() => handleEditTask(task._uuid, task.title)}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          ))}
+        </div>
+
+        <div className="box">
+          <h2>Finished</h2>
+          {tasks.map((task) => (
+            task.status === 'finished' && (
+              <div key={task._uuid} className="task task-done">
+                {editTaskId === task._uuid ? (
+                  <div className="task-input-container">
+                    <input
+                      type="text"
+                      value={editTaskText}
+                      onChange={(e) => setEditTaskText(e.target.value)}
+                      autoFocus
+                    />
+                    <div className="task-buttons">
+                      <button className="arrow" onClick={() => handleSaveTask(task._uuid)}>
+                        &#10003;
+                      </button>
+                      <button className="arrow" onClick={handleCancelEdit}>
+                        &#x2715;
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p>{task.title}</p>
+                    <div className="task-buttons">
+                      <button
+                        className="arrow"
+                        onClick={() => handleMoveTask(task._uuid, 'inprogress')}
+                      >
+                        &larr;
+                      </button>
+                      <button className="delete-button" onClick={() => handleDelete(task._uuid)}>
+                        Delete
+                      </button>
+                      <button
+                        className="edit-button"
+                        onClick={() => handleEditTask(task._uuid, task.title)}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
+
+//------------------------------------------------------------ APP.CSS
+
+.container {
+    text-align: center;
+    background-color: #f2f2f2;
+    padding: 2rem;
+    min-height: 100vh;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.input-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    border-radius: 4px;
+    border: none;
+    margin-right: 0.5rem;
+}
+
+button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.boxes {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.box {
+    flex: 1;
+    background-color: #fff;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.task {
+    background-color: #f9f9f9;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.task p {
+    margin: 0;
+    font-size: 1rem;
+    text-align: left;
+}
+
+.task-input-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.task-input-container input[type="text"] {
+    flex: 1;
+    padding: 0.25rem;
+    font-size: 1rem;
+}
+
+.task-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.arrow {
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    border-radius: 50%;
+}
+
+.delete-button,
+.edit-button,
+.save-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.task-backlog {
+    border-left: 6px solid #f5a623;
+}
+
+.task-inprogress {
+    border-left: 6px solid #007bff;
+}
+
+.task-done {
+    border-left: 6px solid #28a745;
+}
+
+@media (max-width: 600px) {
+    .boxes {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .box {
+        width: 100%;
+    }
+}
